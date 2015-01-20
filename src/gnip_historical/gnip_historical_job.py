@@ -32,7 +32,7 @@ class JobParameters(object):
         elif jobFileName is not None:
             # lastly, try to read json from file
             try:
-                with codecs.open(jobFileName,"rb","utf-8") as tmpJobFile:
+                with codecs.open(jobFileName,"r","utf-8") as tmpJobFile:
                     tmp = tmpJobFile.read()
                     try:
                         tmpJob = json.loads(tmp)
@@ -40,12 +40,12 @@ class JobParameters(object):
                             if test_key not in tmpJob:
                                 raise ValueError("Required fields missing ({})".format(test_key))
                         self.job = tmpJob
-                    except ValueError, e:
+                    except ValueError as e:
                         sys.stderr.write("Failed to parse input JSON. (%s). Exiting.\n"%e)
                         sys.exit()
                 self.setToDate(tmpJob["toDate"])
                 self.setFromDate(tmpJob["fromDate"])
-            except IOError,e:
+            except IOError as e:
                 sys.stderr.write("Failed to open rules file. (%s)\n"%e)
         # Given title supercedes file title, otherwise, use give title
         if title is not None:
@@ -53,7 +53,7 @@ class JobParameters(object):
 
     def writeToFile(self, jobFileName):
         """Write current configuration as a job file"""
-        with codecs.open(jobFileName,"wb","utf-8") as tmpJobFile:
+        with codecs.open(jobFileName,"w","utf-8") as tmpJobFile:
             tmpJobFile.write(str(self))
 
     def setTitle(self, t):
@@ -117,7 +117,7 @@ class JobParameters(object):
         elif type(ruleList) == type("string"):
             try:
                 self.job["rules"] = json.loads(ruleList)
-            except ValueError, e:
+            except ValueError as e:
                 sys.stderr.write("Failed to set rules by parsing JSON string. (%s)\n"%e)
         else:
             sys.stderr.write("Failed to set rules. Check argument type is list of valid rules or string with valid JSON.\n")

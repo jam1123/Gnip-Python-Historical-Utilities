@@ -10,6 +10,6 @@ setup(
     url='http://pypi.python.org/pypi/gnip-historical/',
     license='LICENSE.txt',
     description='Gnip Historical libarary and command scripts.',
-    install_requires=["requests > 1.2.2"],
+    requires=["requests(>1.2.2)"],
     long_description=open('README').read(),
 )

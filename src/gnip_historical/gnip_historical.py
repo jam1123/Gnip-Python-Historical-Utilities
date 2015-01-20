@@ -3,11 +3,11 @@ import requests
 import json
 import sys
 import datetime
-from gnip_historical_job import *
+from gnip_historical.gnip_historical_job import *
 
 class DataSetResults(object):
     def __init__(self, resDict):
-        #print resDict.keys()
+        #print(resDict.keys())
         if "urlList" in resDict:
             self.dataURLs = resDict["urlList"]
         elif "url_list" in resDict:
@@ -32,11 +32,11 @@ class DataSetResults(object):
             self.suspectMinuteURLs = []
 
     def write(self):
-        with open("./data_files.txt", "wb") as f:
+        with open("./data_files.txt", "w") as f:
             for i in self.dataURLs:
                 f.write("%s\n"%i)
-        if self.suspectMinuteURLs <> []:
-            with open("./suspect_files.txt", "wb") as f:
+        if self.suspectMinuteURLs != []:
+            with open("./suspect_files.txt", "w") as f:
                 for i in self.suspectMinuteURLs:
                     f.write("%s\n"%i)
     
@@ -64,7 +64,7 @@ class DataSetResults(object):
 #
 class Result(object):
     def __init__(self, resDict, gnipHist):
-        #print str(resDict)
+        #print(str(resDict))
         self.completedAt = datetime.datetime.strptime(DATE_RE.search(resDict["completedAt"]).group(0),DATEFMT)
         try:
             self.activityCount = int(resDict["activityCount"])
@@ -244,9 +244,9 @@ class GnipHistorical(object):
             s.auth = (self.user_name, self.password)
             s.headers = {'content-type':'application/json'}
             res = s.put(jobURL, data=json.dumps(payload))
-        except requests.exceptions.ConnectionError, e:
+        except requests.exceptions.ConnectionError as e:
             print >> sys.stderr, "Server request failed with message {}".format(e)
-        except requests.exceptions.HTTPError, e:
+        except requests.exceptions.HTTPError as e:
             print >> sys.stderr, "Server request failed with message {}".format(e)
         if res is not None and res.status_code == 200:
             return "Job {}ed successfully".format(payload["status"])
@@ -260,10 +260,10 @@ class GnipHistorical(object):
             s.auth = (self.user_name, self.password)
             s.headers = {'content-type':'application/json'}
             res = s.post(self.baseUrl + "jobs.json", data=str(self.jobPars))
-        except requests.exceptions.ConnectionError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
-        except requests.exceptions.HTTPError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
+        except requests.exceptions.ConnectionError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
+        except requests.exceptions.HTTPError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
         return Status(res.json())
 
     def listJobs(self):
@@ -274,10 +274,10 @@ class GnipHistorical(object):
             s = requests.Session()
             s.auth = (self.user_name, self.password)
             res = s.get(self.baseUrl + "jobs.json")
-        except requests.exceptions.ConnectionError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
-        except requests.exceptions.HTTPError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
+        except requests.exceptions.ConnectionError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
+        except requests.exceptions.HTTPError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
         if res is not None and "jobs" in res.json():
             for x in res.json()["jobs"]:
                 yield Status(x)
@@ -293,10 +293,10 @@ class GnipHistorical(object):
             s = requests.Session()
             s.auth = (self.user_name, self.password)
             res = s.get(URL)
-        except requests.exceptions.ConnectionError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
-        except requests.exceptions.HTTPError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
+        except requests.exceptions.ConnectionError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
+        except requests.exceptions.HTTPError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
         if res is not None:
             return res.json()
         else:
@@ -317,10 +317,10 @@ class GnipHistorical(object):
             s = requests.Session()
             s.auth = (self.user_name, self.password)
             res = s.get(jobURL)
-        except requests.exceptions.ConnectionError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
-        except requests.exceptions.HTTPError, e:
-            print >> sys.stderr, "Server request failed with message {}".format(e)
+        except requests.exceptions.ConnectionError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
+        except requests.exceptions.HTTPError as e:
+            print("Server request failed with message {}".format(e), file=sys.stderr)
         if res is not None:
             return res.json()
         else:
@@ -370,15 +370,15 @@ if __name__ == '__main__':
     jp.setToDate("2012-01-01T00:01:00")
     tmp = jp.getToDate()
     jp.setToDate("201201010001") # same as above
-    print jp.getToDate(), "=", tmp
+    print(jp.getToDate(), "=", tmp)
     jp.setUser("DrSkippy27")
     jp.addRule("bieber", "bestRuleEver")
     # job json as string
-    print jp
+    print(jp)
     # job json as dict
     pprint(jp.job)
-    print "Job duration = ",jp.duration().seconds
-    print
+    print("Job duration = ",jp.duration().seconds)
+    print()
     # Example 2
     # save job description in file
     jp.writeToFile("./bieber_job1.json")
@@ -386,34 +386,34 @@ if __name__ == '__main__':
     # read job description from file
     jp1 = JobParameters("BieberJob2", jobFileName = "./FileMissing.JSON") # this file doesn't exist
     jp1 = JobParameters("BieberJob2", jobFileName = "./bieber_job1.json")
-    print jp1
-    print
+    print(jp1)
+    print()
     # mess it up
     jp1.setFromDate("2012-01-01T00:02:00")
     try:
-        print jp1 # error
-    except ValueError, e:
-        print e
-    print
+        print(jp1) # error
+    except ValueError as e:
+        print(e)
+    print()
     # Example 4
     # working with rules
     jp3 = JobParameters("BieberJob2", jobFileName = "./bieber_job1.json")
     jp3.setRules([{"value": "no bieber"}])
-    print jp3
+    print(jp3)
     jp3.addRule("belieber")
-    print jp3
+    print(jp3)
     jp3.setRules('[{value":"one"}]') # error this is missing a quote
     jp3.setRules('[{"value":"one"}]')
-    print jp3
+    print(jp3)
     ####################################
     # Historical 1 - Change if you want to hit the server
     # r = GnipHistorical("user", "password", "https://historical.gnip.com/accounts/<yours>", jp)
     # Creates a job
-    # print r.createJob()
+    # print(r.createJob())
     try:
         r.acceptJob("not a URL") # error
-    except ValueError,e:
-        print e
+    except ValueError as e:
+        print(e)
     # r.rejectJob("not a URL") # error
     # r.jobStatus("not a URL") # error
     # r.jobs() # get a list of jobs from the gnip server
